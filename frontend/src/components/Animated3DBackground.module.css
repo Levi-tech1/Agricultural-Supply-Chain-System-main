@@ -1,0 +1,221 @@
+.background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+  perspective: 1200px;
+}
+
+.gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 20% 50%,
+    rgba(63, 185, 80, 0.1) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 80% 80%,
+    rgba(63, 185, 80, 0.08) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 40% 20%,
+    rgba(63, 185, 80, 0.06) 0%,
+    transparent 50%
+  );
+  animation: gradientShift 18s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #3fb950;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  box-shadow: 0 0 6px rgba(63, 185, 80, 0.8);
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(100vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100px) translateX(50px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.shape1,
+.shape2,
+.shape3 {
+  position: absolute;
+  border: 2px solid rgba(63, 185, 80, 0.2);
+  border-radius: 50%;
+}
+
+.shape1 {
+  width: 300px;
+  height: 300px;
+  top: 10%;
+  left: 10%;
+  transform-style: preserve-3d;
+  animation: rotate3d 22s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.shape2 {
+  width: 200px;
+  height: 200px;
+  top: 60%;
+  right: 15%;
+  transform-style: preserve-3d;
+  animation: rotate3d 18s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse;
+}
+
+.shape3 {
+  width: 150px;
+  height: 150px;
+  bottom: 20%;
+  left: 50%;
+  transform-style: preserve-3d;
+  animation: rotate3d 26s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotate3d {
+  from {
+    transform: rotateY(0deg) rotateX(15deg);
+  }
+  to {
+    transform: rotateY(360deg) rotateX(15deg);
+  }
+}
+
+/* 3D ring effect */
+.shape1::before,
+.shape2::before,
+.shape3::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+  border: 1px solid rgba(63, 185, 80, 0.35);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotateX(60deg);
+  animation: pulse 5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.shape1::after,
+.shape2::after,
+.shape3::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 80%;
+  height: 80%;
+  border: 1px solid rgba(63, 185, 80, 0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotateY(70deg);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Orbiting dots for extra 3D live feel */
+.orbits {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.orbit {
+  position: absolute;
+  border: 1px dashed rgba(63, 185, 80, 0.15);
+  border-radius: 50%;
+  animation: orbit 35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  transform-style: preserve-3d;
+}
+
+.orbitDot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #3fb950;
+  border-radius: 50%;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(63, 185, 80, 0.8);
+}
+
+@keyframes orbit {
+  from {
+    transform: rotateZ(0deg);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
