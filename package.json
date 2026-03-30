@@ -24,7 +24,7 @@
     "dev:frontend:fixed": "npm run dev -w frontend -- --port 5173 --strictPort"
   },
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
