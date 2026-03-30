@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 let memoryServer;
 const isVercel = process.env.VERCEL === "1";
 
+/** Single in-flight connect so concurrent callers (e.g. index.js + ensureDb) do not double-connect. */
+let pendingConnect = null;
+
 async function startMemoryServer() {
   if (isVercel) {
     throw new Error("In-memory MongoDB is not supported on Vercel. Set MONGODB_URI (e.g. MongoDB Atlas) in project Environment Variables.");
@@ -19,9 +22,7 @@ async function startMemoryServer() {
   }
 }
 
-export async function connectDB() {
-  if (mongoose.connection.readyState === 1) return;
-
+async function performConnect() {
   const uri = process.env.MONGODB_URI?.trim();
   if (isVercel && (!uri || uri === "memory")) {
     throw new Error("MONGODB_URI is required on Vercel. Add it in Vercel Project Settings → Environment Variables (e.g. MongoDB Atlas connection string).");
@@ -47,4 +48,14 @@ export async function connectDB() {
     await mongoose.connect(memoryUri);
     console.log("MongoDB (in-memory) connected");
   }
+}
+
+export async function connectDB() {
+  if (mongoose.connection.readyState === 1) return;
+  if (!pendingConnect) {
+    pendingConnect = performConnect().finally(() => {
+      pendingConnect = null;
+    });
+  }
+  await pendingConnect;
 }

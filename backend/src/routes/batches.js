@@ -51,6 +51,11 @@ router.get("/all", async (req, res, next) => {
 
 router.use(attachSessionUser);
 
+// Avoid GET /:batchId treating "create" as a batch id (common mistaken navigation)
+router.get("/create", (_req, res) => {
+  res.status(405).setHeader("Allow", "POST").json({ error: "Use POST /api/batches/create with a JSON body to create a batch." });
+});
+
 // Farmer only: my batches
 router.get("/my", requireRole("farmer"), async (req, res, next) => {
   try {

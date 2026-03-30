@@ -12,6 +12,7 @@ import morgan from "morgan";
 import { connectDB } from "./db.js";
 import { seedOwner } from "./seedOwner.js";
 import { seedSampleUsers } from "./seedSampleUsers.js";
+import { seedEnvUser } from "./seedEnvUser.js";
 import batchRoutes from "./routes/batches.js";
 import actorRoutes from "./routes/actors.js";
 import verifyRoutes from "./routes/verify.js";
@@ -31,7 +32,8 @@ function ensureDb(req, res, next) {
   if (dbReady === null) {
     dbReady = connectDB()
       .then(() => seedOwner().catch((err) => console.warn("Seed owner failed:", err.message)))
-      .then(() => seedSampleUsers().catch((err) => console.warn("Seed sample users failed:", err.message)));
+      .then(() => seedSampleUsers().catch((err) => console.warn("Seed sample users failed:", err.message)))
+      .then(() => seedEnvUser().catch((err) => console.warn("Seed env user failed:", err.message)));
   }
   dbReady.then(() => next()).catch((err) => {
     console.error("DB error:", err);
@@ -41,6 +43,11 @@ function ensureDb(req, res, next) {
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+// Behind Vercel / reverse proxies: correct client IP for rate limiting and logs
+if (process.env.VERCEL === "1" || process.env.TRUST_PROXY === "1") {
+  app.set("trust proxy", 1);
+}
 
 app.use(morgan("combined"));
 const corsOrigin = process.env.FRONTEND_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || "http://localhost:5173";

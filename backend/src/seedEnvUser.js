@@ -40,5 +40,5 @@ export async function seedEnvUser() {
     mobile: "",
     chainRole: roleToChain[role] ?? null,
   });
-  console.log("Env user created (SEED_USER_EMAIL). You can log in with that email and SEED_USER_PASSWORD.");
+  console.log("Env user created (SEED_USER_EMAIL). Session user can be set with DEFAULT_USER_ID to this account’s id if needed.");
 }
