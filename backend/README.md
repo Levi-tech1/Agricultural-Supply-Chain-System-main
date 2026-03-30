@@ -27,6 +27,12 @@ See [API.md](./API.md) for full endpoint list.
 - `npm test` – run API integration tests (auth, crops).
 - If you see ESM-related errors, run: `NODE_OPTIONS=--experimental-vm-modules npm test` (Unix) or set `NODE_OPTIONS=--experimental-vm-modules` in your environment (Windows).
 
+## Vercel (API host)
+
+Deploy this folder as its own Vercel project (**Root Directory** = `backend`). The app is served via `api/index.js` + `vercel.json` rewrites (Express does not use `listen()` when `VERCEL=1`).
+
+**Required:** `MONGODB_URI` (Atlas or other — in-memory DB is not available on Vercel). Set `FRONTEND_URL` to your frontend origin(s), comma-separated if needed. Then set the frontend project’s `BACKEND_URL` to this deployment’s URL (no `/api` suffix).
+
 ## Environment
 
 - `PORT`, `MONGODB_URI`, `CONTRACT_ADDRESS`, `ETH_RPC_URL`, `JWT_SECRET`, `FRONTEND_URL`
