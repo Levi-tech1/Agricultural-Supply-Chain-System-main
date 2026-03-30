@@ -3,14 +3,6 @@ import { API } from "../config/api.js";
 
 const AuthContext = createContext(null);
 
-function vercelApiHint() {
-  if (typeof window === "undefined") return "";
-  const host = window.location.hostname || "";
-  const usesSameOriginApi = !import.meta.env.VITE_API_URL;
-  if (!usesSameOriginApi || (!host.includes("vercel.app") && !host.includes("vercel.com"))) return "";
-  return " On Vercel: Project Settings → Environment Variables → set BACKEND_URL to your API origin (e.g. https://your-api.onrender.com) with no /api suffix, then redeploy.";
-}
-
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,9 +18,12 @@ export function AuthProvider({ children }) {
           const j = await res.json();
           if (j.error) detail = j.error;
         } catch {
-          /* ignore */
+          if (res.status === 404) {
+            detail =
+              "HTTP 404 — /api/users/me was not found. Usually: missing BACKEND_URL on Vercel, wrong API base URL, or the serverless proxy path did not reach your Express app.";
+          }
         }
-        setSessionError(`${detail}.${vercelApiHint()}`);
+        setSessionError(detail);
         setUser(null);
         return null;
       }
@@ -36,7 +31,7 @@ export function AuthProvider({ children }) {
       setUser(u);
       return u;
     } catch {
-      setSessionError(`Cannot reach the API.${vercelApiHint()}`);
+      setSessionError("Cannot reach the API (network error). Check BACKEND_URL or your connection.");
       setUser(null);
       return null;
     }
