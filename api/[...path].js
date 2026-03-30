@@ -15,11 +15,25 @@ function normalizeBackendUrl(raw) {
   return s;
 }
 
-function extractApiPathRest(pathname) {
-  const m = pathname.match(/^\/api(\/(.*))?$/);
+/**
+ * Build the path after /api for the upstream request.
+ * Vercel often passes req.url without the /api prefix (e.g. /users/me) for api/[...path].js — if we
+ * forwarded only /api/ the backend would 404.
+ */
+function extractApiPathRest(pathname, req) {
+  const clean = (pathname || "/").split("?")[0] || "/";
+  const m = clean.match(/^\/api(\/(.*))?$/);
   if (m) return m[2] ? m[2] : "";
-  const i = pathname.indexOf("/api/");
-  if (i !== -1) return pathname.slice(i + 5);
+  const i = clean.indexOf("/api/");
+  if (i !== -1) return clean.slice(i + 5);
+  const noLeading = clean.replace(/^\/+/, "");
+  if (noLeading && !noLeading.includes("..")) return noLeading;
+
+  const q = req.query && req.query.path;
+  if (q != null) {
+    const joined = Array.isArray(q) ? q.filter(Boolean).join("/") : String(q);
+    if (joined) return joined.replace(/^\/+/, "").replace(/\/+$/, "");
+  }
   return "";
 }
 
@@ -41,11 +55,7 @@ module.exports = async (req, res) => {
     const q = raw.indexOf("?");
     const pathname = q === -1 ? raw : raw.slice(0, q);
     const search = q === -1 ? "" : raw.slice(q);
-    let rest = extractApiPathRest(pathname);
-    if (!rest && req.query && req.query.path != null) {
-      const p = req.query.path;
-      rest = Array.isArray(p) ? p.join("/") : String(p);
-    }
+    let rest = extractApiPathRest(pathname, req);
     const targetUrl = `${backend}/api/${rest}${search}`;
 
     const headers = {};
