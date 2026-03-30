@@ -3,12 +3,14 @@ import { connectDB } from "./db.js";
 import { seedOwner } from "./seedOwner.js";
 import { seedSampleUsers } from "./seedSampleUsers.js";
 import { seedEnvUser } from "./seedEnvUser.js";
+import { ensureMinSessionUser } from "./ensureMinSessionUser.js";
 
 if (process.env.VERCEL !== "1") {
   connectDB()
     .then(() => seedOwner().catch((err) => console.warn("Seed owner failed at startup:", err.message)))
     .then(() => seedSampleUsers().catch((err) => console.warn("Seed sample users failed at startup:", err.message)))
     .then(() => seedEnvUser().catch((err) => console.warn("Seed env user failed at startup:", err.message)))
+    .then(() => ensureMinSessionUser())
     .then(() => {
       const server = app.listen(PORT, () => {
         const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";

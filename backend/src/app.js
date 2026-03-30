@@ -13,6 +13,7 @@ import { connectDB } from "./db.js";
 import { seedOwner } from "./seedOwner.js";
 import { seedSampleUsers } from "./seedSampleUsers.js";
 import { seedEnvUser } from "./seedEnvUser.js";
+import { ensureMinSessionUser } from "./ensureMinSessionUser.js";
 import batchRoutes from "./routes/batches.js";
 import actorRoutes from "./routes/actors.js";
 import verifyRoutes from "./routes/verify.js";
@@ -33,7 +34,8 @@ function ensureDb(req, res, next) {
     dbReady = connectDB()
       .then(() => seedOwner().catch((err) => console.warn("Seed owner failed:", err.message)))
       .then(() => seedSampleUsers().catch((err) => console.warn("Seed sample users failed:", err.message)))
-      .then(() => seedEnvUser().catch((err) => console.warn("Seed env user failed:", err.message)));
+      .then(() => seedEnvUser().catch((err) => console.warn("Seed env user failed:", err.message)))
+      .then(() => ensureMinSessionUser());
   }
   dbReady.then(() => next()).catch((err) => {
     console.error("DB error:", err);
@@ -50,8 +52,24 @@ if (process.env.VERCEL === "1" || process.env.TRUST_PROXY === "1") {
 }
 
 app.use(morgan("combined"));
-const corsOrigin = process.env.FRONTEND_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || "http://localhost:5173";
-app.use(cors({ origin: corsOrigin, credentials: true }));
+
+function corsOriginOption() {
+  const raw = (process.env.FRONTEND_URL || "").trim();
+  if (raw) {
+    const list = raw.split(",").map((s) => s.trim()).filter(Boolean);
+    if (list.length > 1) {
+      return (origin, cb) => {
+        if (!origin) return cb(null, true);
+        cb(null, list.includes(origin));
+      };
+    }
+    if (list.length === 1) return list[0];
+  }
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:5173";
+}
+
+app.use(cors({ origin: corsOriginOption(), credentials: true }));
 
 app.get("/health", (_, res) => res.json({ ok: true }));
 

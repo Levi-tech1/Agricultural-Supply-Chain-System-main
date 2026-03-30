@@ -158,7 +158,7 @@ function LayoutShell() {
 }
 
 export default function Layout() {
-  const { user, loading } = useAuth();
+  const { user, loading, sessionError } = useAuth();
 
   if (loading) {
     return (
@@ -175,8 +175,15 @@ export default function Layout() {
       <div className={styles.layout}>
         <SimpleStaticBackground />
         <div className={styles.authLoading} role="alert">
-          Could not load a session user. Ensure the backend is running and the database has at least one user (or set{" "}
-          <code>DEFAULT_USER_ID</code> on the server).
+          <p>Could not load a session user.</p>
+          {sessionError ? (
+            <p style={{ marginTop: "0.75rem", maxWidth: "36rem", opacity: 0.92 }}>{sessionError}</p>
+          ) : (
+            <p style={{ marginTop: "0.75rem", maxWidth: "36rem", opacity: 0.92 }}>
+              Ensure the backend is running, <code>MONGODB_URI</code> is set on the API host, and the database has at
+              least one user (or set <code>DEFAULT_USER_ID</code> on the server).
+            </p>
+          )}
         </div>
       </div>
     );
