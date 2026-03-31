@@ -3,6 +3,28 @@ import { API } from "../config/api.js";
 
 const AuthContext = createContext(null);
 
+async function describeApiHealth() {
+  try {
+    const health = await fetch(`${API}/health`);
+    const text = await health.text();
+    let parsed = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      /* not JSON */
+    }
+    if (health.ok) {
+      return `API reachable (health ${health.status})`;
+    }
+    if (parsed?.error) {
+      return `Health ${health.status}: ${parsed.error}`;
+    }
+    return `API health HTTP ${health.status}${text ? ` — ${text.slice(0, 200)}` : ""}`;
+  } catch {
+    return "API not reachable (network error)";
+  }
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,12 +47,7 @@ export function AuthProvider({ children }) {
               "HTTP 404 — /api/users/me was not found. Usually: missing BACKEND_URL on Vercel, wrong API base URL, or the serverless proxy path did not reach your Express app.";
           }
         }
-        try {
-          const health = await fetch(`${API}/health`);
-          setApiStatus(health.ok ? `API reachable (health ${health.status})` : `API health HTTP ${health.status}`);
-        } catch {
-          setApiStatus("API not reachable (network error)");
-        }
+        setApiStatus(await describeApiHealth());
         setSessionError(detail);
         setUser(null);
         return null;
