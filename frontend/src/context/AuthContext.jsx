@@ -3,9 +3,20 @@ import { API } from "../config/api.js";
 
 const AuthContext = createContext(null);
 
+async function fetchWithTimeout(url, init = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...init, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 async function describeApiHealth() {
   try {
-    const health = await fetch(`${API}/health`);
+    const health = await fetchWithTimeout(`${API}/health`, {}, 8000);
     const text = await health.text();
     let parsed = null;
     try {
@@ -35,7 +46,7 @@ export function AuthProvider({ children }) {
     setSessionError(null);
     setApiStatus(null);
     try {
-      const res = await fetch(`${API}/users/me`);
+      const res = await fetchWithTimeout(`${API}/users/me`, {}, 12000);
       if (!res.ok) {
         let detail = `HTTP ${res.status}`;
         try {
@@ -55,9 +66,14 @@ export function AuthProvider({ children }) {
       const u = await res.json();
       setUser(u);
       return u;
-    } catch {
-      setSessionError("Cannot reach the API (network error). Check BACKEND_URL or your connection.");
-      setApiStatus("API not reachable (network error)");
+    } catch (err) {
+      const aborted = err?.name === "AbortError";
+      setSessionError(
+        aborted
+          ? "API request timed out. On Vercel, verify BACKEND_URL is set and redeploy."
+          : "Cannot reach the API (network error). Check BACKEND_URL or your connection."
+      );
+      setApiStatus(aborted ? "API not reachable (timeout)" : "API not reachable (network error)");
       setUser(null);
       return null;
     }
@@ -75,7 +91,7 @@ export function AuthProvider({ children }) {
   }, [refreshUser]);
 
   const markRegisteredOnChain = useCallback(async () => {
-    const res = await fetch(`${API}/users/me/registered-on-chain`, { method: "PATCH" });
+    const res = await fetchWithTimeout(`${API}/users/me/registered-on-chain`, { method: "PATCH" }, 12000);
     if (res.ok) {
       const data = await res.json();
       setUser((prev) => (prev ? { ...prev, registeredOnChain: data.registeredOnChain } : prev));
