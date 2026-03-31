@@ -72,6 +72,8 @@ function corsOriginOption() {
 app.use(cors({ origin: corsOriginOption(), credentials: true }));
 
 app.get("/health", (_, res) => res.json({ ok: true }));
+// Same-origin Vercel proxy uses /api/*, so expose a health endpoint there too.
+app.get("/api/health", (_, res) => res.json({ ok: true }));
 
 app.post(
   "/api/webhooks/stripe",
