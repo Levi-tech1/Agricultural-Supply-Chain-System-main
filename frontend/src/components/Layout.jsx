@@ -158,7 +158,7 @@ function LayoutShell() {
 }
 
 export default function Layout() {
-  const { user, loading, sessionError } = useAuth();
+  const { user, loading, sessionError, apiStatus, refreshUser } = useAuth();
 
   if (loading) {
     return (
@@ -187,6 +187,26 @@ export default function Layout() {
               least one user (or set <code>DEFAULT_USER_ID</code> on the server).
             </p>
           )}
+          {apiStatus && (
+            <p style={{ marginTop: "0.5rem", maxWidth: "40rem", opacity: 0.88, fontSize: "0.9rem" }}>
+              <strong>API status:</strong> {apiStatus}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={() => refreshUser()}
+            style={{
+              marginTop: "1rem",
+              padding: "0.55rem 0.9rem",
+              borderRadius: 10,
+              border: "1px solid var(--border)",
+              background: "rgba(255,255,255,0.04)",
+              color: "var(--text)",
+              cursor: "pointer",
+            }}
+          >
+            Retry
+          </button>
           {showVercelHint && (
             <p style={{ marginTop: "1rem", maxWidth: "40rem", fontSize: "0.9rem", opacity: 0.88, lineHeight: 1.5 }}>
               <strong>Vercel:</strong> In this project → <strong>Settings → Environment Variables</strong>, set{" "}

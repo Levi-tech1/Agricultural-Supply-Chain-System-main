@@ -7,9 +7,11 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionError, setSessionError] = useState(null);
+  const [apiStatus, setApiStatus] = useState(null);
 
   const refreshUser = useCallback(async () => {
     setSessionError(null);
+    setApiStatus(null);
     try {
       const res = await fetch(`${API}/users/me`);
       if (!res.ok) {
@@ -23,6 +25,12 @@ export function AuthProvider({ children }) {
               "HTTP 404 — /api/users/me was not found. Usually: missing BACKEND_URL on Vercel, wrong API base URL, or the serverless proxy path did not reach your Express app.";
           }
         }
+        try {
+          const health = await fetch(`${API}/health`);
+          setApiStatus(health.ok ? `API reachable (health ${health.status})` : `API health HTTP ${health.status}`);
+        } catch {
+          setApiStatus("API not reachable (network error)");
+        }
         setSessionError(detail);
         setUser(null);
         return null;
@@ -32,6 +40,7 @@ export function AuthProvider({ children }) {
       return u;
     } catch {
       setSessionError("Cannot reach the API (network error). Check BACKEND_URL or your connection.");
+      setApiStatus("API not reachable (network error)");
       setUser(null);
       return null;
     }
@@ -57,7 +66,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, sessionError, refreshUser, markRegisteredOnChain }}>
+    <AuthContext.Provider value={{ user, loading, sessionError, apiStatus, refreshUser, markRegisteredOnChain }}>
       {children}
     </AuthContext.Provider>
   );
