@@ -78,6 +78,18 @@ function computeApiRest(req) {
   return "";
 }
 
+/** BACKEND_URL must be a different host than this deployment, or the proxy calls itself and gets HTML 404s. */
+function backendPointsToThisVercelDeployment(backendUrl) {
+  const vercelHost = (process.env.VERCEL_URL || "").trim().replace(/^https?:\/\//i, "").split("/")[0];
+  if (!vercelHost || !backendUrl) return false;
+  try {
+    const u = new URL(backendUrl.includes("://") ? backendUrl : `https://${backendUrl}`);
+    return u.hostname.toLowerCase() === vercelHost.toLowerCase();
+  } catch {
+    return false;
+  }
+}
+
 async function proxyHandler(req, res) {
   const backend = normalizeBackendUrl(process.env.BACKEND_URL || "");
   if (!backend) {
@@ -86,6 +98,17 @@ async function proxyHandler(req, res) {
       JSON.stringify({
         error:
           "BACKEND_URL is not set on Vercel. Add it under Project → Settings → Environment Variables (e.g. https://your-api.onrender.com), then redeploy. Or set VITE_API_URL at build time for direct API calls.",
+      })
+    );
+    return;
+  }
+
+  if (backendPointsToThisVercelDeployment(backend)) {
+    res.status(503).setHeader("content-type", "application/json");
+    res.send(
+      JSON.stringify({
+        error:
+          "BACKEND_URL must be your API server URL (e.g. Render/Railway or a Vercel project with Root Directory backend), not this frontend deployment URL. Same hostname causes the proxy to request itself and return 404. Fix BACKEND_URL or use VITE_API_URL at build time instead.",
       })
     );
     return;

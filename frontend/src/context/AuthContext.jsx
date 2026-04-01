@@ -30,6 +30,9 @@ async function describeApiHealth() {
     if (parsed?.error) {
       return `Health ${health.status}: ${parsed.error}`;
     }
+    if (health.status === 404 && /^\s*</.test(text.trimStart())) {
+      return "Health returned HTML (404) — /api is not hitting the serverless proxy, or BACKEND_URL points at this frontend.";
+    }
     return `API health HTTP ${health.status}${text ? ` — ${text.slice(0, 200)}` : ""}`;
   } catch {
     return "API not reachable (network error)";
@@ -47,23 +50,37 @@ export function AuthProvider({ children }) {
     setApiStatus(null);
     try {
       const res = await fetchWithTimeout(`${API}/users/me`, {}, 12000);
+      const text = await res.text();
       if (!res.ok) {
         let detail = `HTTP ${res.status}`;
+        let j = null;
         try {
-          const j = await res.json();
-          if (j.error) detail = j.error;
+          j = text ? JSON.parse(text) : null;
         } catch {
-          if (res.status === 404) {
-            detail =
-              "HTTP 404 — /api/users/me was not found. Usually: missing BACKEND_URL on Vercel, wrong API base URL, or the serverless proxy path did not reach your Express app.";
-          }
+          /* not JSON (often HTML from static hosting) */
+        }
+        if (j?.error) {
+          detail = j.error;
+        } else if (res.status === 404) {
+          const looksHtml = /^\s*</.test(text.trimStart());
+          detail = looksHtml
+            ? "HTTP 404: the response was a web page, not JSON — BACKEND_URL on this frontend project is often set to this same site URL, or /api is not deployed. Set BACKEND_URL to your real API host (no /api suffix), redeploy; or set VITE_API_URL at build time to that API origin and rebuild (enable CORS + FRONTEND_URL on the API)."
+            : "HTTP 404 — /api/users/me was not found. Check BACKEND_URL, VITE_API_URL, and that the backend exposes GET /api/users/me.";
         }
         setApiStatus(await describeApiHealth());
         setSessionError(detail);
         setUser(null);
         return null;
       }
-      const u = await res.json();
+      let u;
+      try {
+        u = JSON.parse(text);
+      } catch {
+        setSessionError("The API returned invalid JSON for /api/users/me.");
+        setApiStatus(await describeApiHealth());
+        setUser(null);
+        return null;
+      }
       setUser(u);
       return u;
     } catch (err) {

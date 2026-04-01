@@ -54,12 +54,22 @@ You can run this project on the internet by hosting the **frontend**, **backend*
 3. **Build settings:**
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
-4. Add **Environment Variables**:
+4. Add **Environment Variables** (pick **one** way to reach the API):
 
-   | Variable              | Value |
-   |-----------------------|--------|
-   | `VITE_API_URL`        | Your backend URL, e.g. `https://your-api.onrender.com` (no trailing slash) |
+   **Option A — direct API (simplest):** set at build time
+
+   | Variable               | Value |
+   |------------------------|--------|
+   | `VITE_API_URL`         | Your **backend** URL, e.g. `https://your-api.onrender.com` (no trailing slash, **not** the frontend URL) |
    | `VITE_CONTRACT_ADDRESS`| Same as backend `CONTRACT_ADDRESS` (optional) |
+
+   **Option B — same-origin `/api` proxy:** leave `VITE_API_URL` **unset**, and set on the **frontend** Vercel project:
+
+   | Variable       | Value |
+   |----------------|--------|
+   | `BACKEND_URL`  | Same backend origin as above (e.g. `https://your-api.onrender.com`) — **must not** be your frontend `*.vercel.app` URL, or you will get HTTP 404 on `/api/*`. |
+
+   The repo includes `frontend/api/[...path].js` so Vercel can forward `/api/*` to `BACKEND_URL`.
 
 5. Deploy. Vercel will give you a URL like `https://your-app.vercel.app`.
 

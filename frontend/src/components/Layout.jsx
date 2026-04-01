@@ -198,11 +198,12 @@ export default function Layout() {
             </button>
             {showVercelHint && (
               <p className={styles.authErrorHint}>
-                <strong>Vercel:</strong> In this project → <strong>Settings → Environment Variables</strong>, set{" "}
-                <code>BACKEND_URL</code> to your hosted API origin only (example:{" "}
-                <code>https://your-api.onrender.com</code>) — <em>no</em> <code>/api</code> at the end. Redeploy.
-                Optional: set <code>VITE_API_URL</code> at build time to that same origin and rebuild if you prefer
-                direct browser → API calls (enable CORS on the API with your Vercel URL in <code>FRONTEND_URL</code>).
+                <strong>Vercel (this frontend project):</strong> In <strong>Settings → Environment Variables</strong>, set{" "}
+                <code>BACKEND_URL</code> to your <strong>separate API</strong> base URL only — for example{" "}
+                <code>https://your-api.onrender.com</code> or <code>https://your-backend-project.vercel.app</code>. Do{" "}
+                <em>not</em> use this AgriChain frontend URL, and do not add <code>/api</code> at the end. Redeploy.
+                Easiest alternative: set <code>VITE_API_URL</code> at build time to that same API origin, rebuild, and on
+                the API set <code>FRONTEND_URL</code> to this site for CORS.
               </p>
             )}
           </div>
