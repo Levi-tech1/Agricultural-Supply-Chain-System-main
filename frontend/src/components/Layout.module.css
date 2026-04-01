@@ -8,10 +8,95 @@
 .authLoading {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
   font-size: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Session / API error: was using row flex and scattered text across the viewport */
+.authErrorWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+}
+
+.authErrorCard {
+  width: 100%;
+  max-width: 40rem;
+  padding: 1.75rem 1.5rem;
+  background: rgba(22, 27, 34, 0.94);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: var(--text);
+  text-align: left;
+}
+
+.authErrorTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.authErrorDetail,
+.authErrorStatus,
+.authErrorHint {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.authErrorStatus {
+  font-size: 0.9rem;
+}
+
+.authErrorHint {
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.authErrorCard code {
+  font-size: 0.88em;
+  padding: 0.12em 0.35em;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  color: var(--text);
+}
+
+.authErrorRetry {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.authErrorRetry:hover {
+  background: rgba(63, 185, 80, 0.12);
+  border-color: rgba(63, 185, 80, 0.4);
 }
 
 .header {

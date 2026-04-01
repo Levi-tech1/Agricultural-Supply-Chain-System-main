@@ -177,45 +177,35 @@ export default function Layout() {
     return (
       <div className={styles.layout}>
         <SimpleStaticBackground />
-        <div className={styles.authLoading} role="alert">
-          <p>Could not load a session user.</p>
-          {sessionError ? (
-            <p style={{ marginTop: "0.75rem", maxWidth: "40rem", opacity: 0.92 }}>{sessionError}</p>
-          ) : (
-            <p style={{ marginTop: "0.75rem", maxWidth: "40rem", opacity: 0.92 }}>
-              Ensure the backend is running, <code>MONGODB_URI</code> is set on the API host, and the database has at
-              least one user (or set <code>DEFAULT_USER_ID</code> on the server).
-            </p>
-          )}
-          {apiStatus && (
-            <p style={{ marginTop: "0.5rem", maxWidth: "40rem", opacity: 0.88, fontSize: "0.9rem" }}>
-              <strong>API status:</strong> {apiStatus}
-            </p>
-          )}
-          <button
-            type="button"
-            onClick={() => refreshUser()}
-            style={{
-              marginTop: "1rem",
-              padding: "0.55rem 0.9rem",
-              borderRadius: 10,
-              border: "1px solid var(--border)",
-              background: "rgba(255,255,255,0.04)",
-              color: "var(--text)",
-              cursor: "pointer",
-            }}
-          >
-            Retry
-          </button>
-          {showVercelHint && (
-            <p style={{ marginTop: "1rem", maxWidth: "40rem", fontSize: "0.9rem", opacity: 0.88, lineHeight: 1.5 }}>
-              <strong>Vercel:</strong> In this project → <strong>Settings → Environment Variables</strong>, set{" "}
-              <code>BACKEND_URL</code> to your hosted API origin only (example: <code>https://your-api.onrender.com</code>
-              ) — <em>no</em> <code>/api</code> at the end. Redeploy. Optional: set <code>VITE_API_URL</code> at build
-              time to that same origin and rebuild if you prefer direct browser → API calls (enable CORS on the API with
-              your Vercel URL in <code>FRONTEND_URL</code>).
-            </p>
-          )}
+        <div className={styles.authErrorWrap} role="alert">
+          <div className={styles.authErrorCard}>
+            <p className={styles.authErrorTitle}>Could not load a session user.</p>
+            {sessionError ? (
+              <p className={styles.authErrorDetail}>{sessionError}</p>
+            ) : (
+              <p className={styles.authErrorDetail}>
+                Ensure the backend is running, <code>MONGODB_URI</code> is set on the API host, and the database has at
+                least one user (or set <code>DEFAULT_USER_ID</code> on the server).
+              </p>
+            )}
+            {apiStatus && (
+              <p className={styles.authErrorStatus}>
+                <strong>API status:</strong> {apiStatus}
+              </p>
+            )}
+            <button type="button" className={styles.authErrorRetry} onClick={() => refreshUser()}>
+              Retry
+            </button>
+            {showVercelHint && (
+              <p className={styles.authErrorHint}>
+                <strong>Vercel:</strong> In this project → <strong>Settings → Environment Variables</strong>, set{" "}
+                <code>BACKEND_URL</code> to your hosted API origin only (example:{" "}
+                <code>https://your-api.onrender.com</code>) — <em>no</em> <code>/api</code> at the end. Redeploy.
+                Optional: set <code>VITE_API_URL</code> at build time to that same origin and rebuild if you prefer
+                direct browser → API calls (enable CORS on the API with your Vercel URL in <code>FRONTEND_URL</code>).
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );
