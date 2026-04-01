@@ -31,6 +31,8 @@ See [API.md](./API.md) for full endpoint list.
 
 Deploy this folder as its own Vercel project (**Root Directory** = `backend`). The app is served via `api/index.js` + `vercel.json` rewrites (Express does not use `listen()` when `VERCEL=1`).
 
+In the Vercel dashboard, do **not** set **Output Directory** to `frontend/dist` (that is for the separate frontend project). This repo’s `backend/vercel.json` uses `outputDirectory: dist`, created by `npm run build`.
+
 **Required:** `MONGODB_URI` (Atlas or other — in-memory DB is not available on Vercel). Set `FRONTEND_URL` to your frontend origin(s), comma-separated if needed. Then set the frontend project’s `BACKEND_URL` to this deployment’s URL (no `/api` suffix).
 
 ## Environment
