@@ -2,6 +2,7 @@
   "name": "agricultural-supply-chain",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Blockchain-based Agricultural Supply Chain Management System",
   "workspaces": [
     "contracts",
