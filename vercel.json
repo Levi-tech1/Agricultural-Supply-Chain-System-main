@@ -2,9 +2,12 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "frontend/dist",
-  "rewrites": [{ "source": "/((?!api).*)", "destination": "/index.html" }],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/((?!api).*)", "destination": "/index.html" }
+  ],
   "functions": {
-    "api/[...path].js": {
+    "api/index.js": {
       "maxDuration": 30,
       "memory": 1024,
       "includeFiles": "backend/**"
